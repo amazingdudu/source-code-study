@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+		<script src="./zepto.js"></script>
+
+		<style>
+			#app {
+				width: 200px;
+				height: 200px;
+				background-color: pink;
+			}
+
+			a {
+				position: fixed;
+			}
+		</style>
+	</head>
+	<body>
+		<form>
+			<fieldset>
+				姓名 <input type="text" name="name" id="name" /> 年龄 <input type="text" name="age" id="age" /> 男
+				<input type="radio" name="sex" checked value="0" /> 女 <input type="radio" name="sex" value="1" />
+				<select name="select" id="" multiple>
+					<option value="xix">assssssss</option>
+					<option value="hah">bssssssssssss</option>
+				</select>
+				<input type="submit" value="提交" />
+			</fieldset>
+		</form>
+		<button class="btn-show">show</button>
+		<button class="btn-hide">hide</button>
+		<div id="app" class="box">
+			<p></p>
+		</div>
+		<div>
+			<p></p>
+		</div>
+		<svg></svg>
+		<script>
+			var a = 0;
+			var me = {
+				test(a) {
+					console.log(a);
+				}
+			};
+			// $('button').eq(0).on('click.b', function(){
+			//     console.log('b');
+			// });
+			// $('button').eq(0).on('click.b', function(){
+			//     console.log('a');
+			// });
+			// $('button').eq(0).on('click', function(){
+			//     console.log('c');
+			// });
+			function handleClick() {
+				console.log('click');
+				$('body').trigger(e);
+				return false;
+			}
+			$('.box').on('click', handleClick);
+
+			var e = $.Event('myEvent', {
+				as: 'ssss'
+			});
+			console.log(e);
+			$('body').on('myEvent', function(e) {
+				console.log(e);
+			});
+		</script>
+	</body>
+</html>
