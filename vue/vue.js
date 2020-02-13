@@ -989,7 +989,7 @@
 		def(value, '__ob__', this);
 		if (Array.isArray(value)) {
 			// 如果有'__proto__'属性，则直接覆盖，数组方法可继承使用，否则，在数组实例中添加属性，数组方法直接使用
-			if (!hasProto) {
+			if (hasProto) {
 				protoAugment(value, arrayMethods);
 			} else {
 				copyAugment(value, arrayMethods, arrayKeys);
@@ -1111,12 +1111,12 @@
 				var value = getter ? getter.call(obj) : val;
 				if (Dep.target) {
 					dep.depend();
-				
+
 					if (childOb) {
-                        childOb.dep.depend();
-                        // console.log(childOb.value===value);
-                        // console.log(value.__ob__===childOb);
-                        // console.log(childOb.dep===value.__ob__.dep);
+						childOb.dep.depend();
+						// console.log(childOb.value===value);
+						// console.log(value.__ob__===childOb);
+						// console.log(childOb.dep===value.__ob__.dep);
 						//?  为什么
 						if (Array.isArray(value)) {
 							dependArray(value);
@@ -1182,11 +1182,14 @@
 			);
 			return val;
 		}
+		// 如果target是一个没被observe的对象，相当于直接给对象加属性
 		if (!ob) {
 			target[key] = val;
 			return val;
 		}
+		//? ob.value === target 是否相等？
 		defineReactive$$1(ob.value, key, val);
+		//? 在哪收集的
 		ob.dep.notify();
 		return val;
 	}
@@ -2643,8 +2646,7 @@
 				res && typeof res === 'object' && !Array.isArray(res)
 					? [res] // single vnode
 					: normalizeChildren(res);
-			return res &&
-				(res.length === 0 || (res.length === 1 && res[0].isComment)) // #9658
+			return res && (res.length === 0 || (res.length === 1 && res[0].isComment)) // #9658
 				? undefined
 				: res;
 		};
@@ -2824,7 +2826,7 @@
 
 	/**
 	 * Runtime helper for rendering static trees.
-     * 用于渲染静态树的运行时助手。
+	 * 用于渲染静态树的运行时助手。
 	 */
 	function renderStatic(index, isInFor) {
 		var cached = this._staticTrees || (this._staticTrees = []);
@@ -4350,29 +4352,38 @@
 	 * and fires callback when the expression value changes.
 	 * This is used for both the $watch() api and directives.
 	 */
+    /**
+     * 
+     * @param {*} vm  vue实例
+     * @param {*} expOrFn 表达式或者函数
+     * @param {*} cb 回调函数
+     * @param {*} options 参数
+     * @param {*} isRenderWatcher 是否是在render中new Watcher
+     */
 	var Watcher = function Watcher(vm, expOrFn, cb, options, isRenderWatcher) {
 		this.vm = vm;
 		if (isRenderWatcher) {
 			vm._watcher = this;
-		}
+        }
+        // initstate初始化状态时赋值空数组 vm._watchers = [];
 		vm._watchers.push(this);
 		// options
 		if (options) {
-			this.deep = !!options.deep;
-			this.user = !!options.user;
+			this.deep = !!options.deep; //对象内部值的变化
+			this.user = !!options.user; 
 			this.lazy = !!options.lazy;
 			this.sync = !!options.sync;
 			this.before = options.before;
 		} else {
 			this.deep = this.user = this.lazy = this.sync = false;
 		}
-		this.cb = cb;
-		this.id = ++uid$2; // uid for batching
+		this.cb = cb; //回调函数
+		this.id = ++uid$2; // uid for batching 记录watcher的id
 		this.active = true;
 		this.dirty = this.lazy; // for lazy watchers
-		this.deps = [];
-		this.newDeps = [];
-		this.depIds = new _Set();
+		this.deps = []; // 存放自己订阅的dep,即收集了该watcher的dep
+		this.newDeps = []; 
+		this.depIds = new _Set(); //记录订阅的dep
 		this.newDepIds = new _Set();
 		this.expression = expOrFn.toString();
 		// parse expression for getter
@@ -4399,10 +4410,12 @@
 	 * Evaluate the getter, and re-collect dependencies.
 	 */
 	Watcher.prototype.get = function get() {
+        // Dep.target = this
 		pushTarget(this);
 		var value;
 		var vm = this.vm;
 		try {
+            // 读取值，触发get，执行 dep.depend(),收集依赖
 			value = this.getter.call(vm, vm);
 		} catch (e) {
 			if (this.user) {
@@ -4426,11 +4439,13 @@
 	 * Add a dependency to this directive.
 	 */
 	Watcher.prototype.addDep = function addDep(dep) {
-		var id = dep.id;
+        var id = dep.id;
+        // 如果还没有订阅
 		if (!this.newDepIds.has(id)) {
 			this.newDepIds.add(id);
 			this.newDeps.push(dep);
 			if (!this.depIds.has(id)) {
+                // 订阅
 				dep.addSub(this);
 			}
 		}
@@ -4871,8 +4886,8 @@
 				mark(startTag);
 			}
 
-            // a flag to avoid this being observed
-            // 一个标志，以避免被观察到
+			// a flag to avoid this being observed
+			// 一个标志，以避免被观察到
 			vm._isVue = true;
 			// merge options
 			if (options && options._isComponent) {
@@ -5028,8 +5043,9 @@
 		 */
 		Vue.extend = function(extendOptions) {
 			extendOptions = extendOptions || {};
-			var Super = this;
-			var SuperId = Super.cid;
+            var Super = this;
+            var SuperId = Super.cid;
+            // 在extendOptions添加_Ctor属性，缓存
 			var cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {});
 			if (cachedCtors[SuperId]) {
 				return cachedCtors[SuperId];
@@ -9225,7 +9241,8 @@
 					tagName: start[1],
 					attrs: [],
 					start: index
-				};
+                };
+                
 				advance(start[0].length);
 				var end, attr;
 				while (
