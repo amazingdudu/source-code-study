@@ -9,36 +9,36 @@
     (global = global || self, global.Vue = factory());
   }(this, function () { 'use strict';
   
-    /*  */
-  
+    // Object.freeze
+    // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
     var emptyObject = Object.freeze({});
   
-    // These helpers produce better VM code in JS engines due to their
-    // explicitness and function inlining.
+    /**
+     * 是否未定义undefined或者null
+     * @param {*} v 
+     * @returns {Boolean} 
+     */
     function isUndef (v) {
       return v === undefined || v === null
     }
-  
+    // 是否已定义
     function isDef (v) {
       return v !== undefined && v !== null
     }
-  
+    // 是否为true
     function isTrue (v) {
       return v === true
     }
-  
+    // 是否为false
     function isFalse (v) {
       return v === false
     }
   
-    /**
-     * Check if value is primitive.
-     */
+    // 是否为基本数据类型(已定义的)
     function isPrimitive (value) {
       return (
         typeof value === 'string' ||
         typeof value === 'number' ||
-        // $flow-disable-line
         typeof value === 'symbol' ||
         typeof value === 'boolean'
       )
@@ -48,6 +48,7 @@
      * Quick object check - this is primarily used to tell
      * Objects from primitive values when we know the value
      * is a JSON-compliant type.
+     * 快速对象检查——当我们知道对象是json兼容类型时，这主要用于区分对象和原始值。
      */
     function isObject (obj) {
       return obj !== null && typeof obj === 'object'
@@ -55,6 +56,7 @@
   
     /**
      * Get the raw type string of a value, e.g., [object Object].
+     * 获取值的原始类型字符串
      */
     var _toString = Object.prototype.toString;
   
@@ -65,23 +67,25 @@
     /**
      * Strict object type check. Only returns true
      * for plain JavaScript objects.
+     * 严格的对象类型检查。仅对普通JavaScript对象返回true。
      */
     function isPlainObject (obj) {
       return _toString.call(obj) === '[object Object]'
     }
-  
+    // 是否为正则表达式
     function isRegExp (v) {
       return _toString.call(v) === '[object RegExp]'
     }
   
     /**
      * Check if val is a valid array index.
+     * 检查val是否是有效的数组索引。
      */
     function isValidArrayIndex (val) {
       var n = parseFloat(String(val));
       return n >= 0 && Math.floor(n) === n && isFinite(val)
     }
-  
+    // 是否为Promise
     function isPromise (val) {
       return (
         isDef(val) &&
@@ -92,6 +96,7 @@
   
     /**
      * Convert a value to a string that is actually rendered.
+     * 将值转换为实际呈现的字符串。
      */
     function toString (val) {
       return val == null
@@ -104,6 +109,7 @@
     /**
      * Convert an input value to a number for persistence.
      * If the conversion fails, return original string.
+     * 将输入值转换为数字以保持持久性。 如果转换失败，则返回原始字符串。
      */
     function toNumber (val) {
       var n = parseFloat(val);
@@ -113,6 +119,7 @@
     /**
      * Make a map and return a function for checking if a key
      * is in that map.
+     * 创建一个映射并返回一个函数来检查该映射中是否有键。
      */
     function makeMap (
       str,
@@ -130,16 +137,19 @@
   
     /**
      * Check if a tag is a built-in tag.
+     * 检查标签是否是内置标签。
      */
     var isBuiltInTag = makeMap('slot,component', true);
   
     /**
      * Check if an attribute is a reserved attribute.
+     * 检查属性是否是保留属性。
      */
     var isReservedAttribute = makeMap('key,ref,slot,slot-scope,is');
   
     /**
      * Remove an item from an array.
+     * 从数组中删除项。
      */
     function remove (arr, item) {
       if (arr.length) {
@@ -152,6 +162,7 @@
   
     /**
      * Check whether an object has the property.
+     * 检查key是否为对象自身的属性。
      */
     var hasOwnProperty = Object.prototype.hasOwnProperty;
     function hasOwn (obj, key) {
@@ -160,6 +171,9 @@
   
     /**
      * Create a cached version of a pure function.
+     * 创建纯函数的缓存版本。
+     * @param {Function} fn 
+     * @returns {Function}
      */
     function cached (fn) {
       var cache = Object.create(null);
@@ -171,6 +185,7 @@
   
     /**
      * Camelize a hyphen-delimited string.
+     * 连字符转驼峰
      */
     var camelizeRE = /-(\w)/g;
     var camelize = cached(function (str) {
@@ -179,6 +194,7 @@
   
     /**
      * Capitalize a string.
+     * 首字符大写
      */
     var capitalize = cached(function (str) {
       return str.charAt(0).toUpperCase() + str.slice(1)
@@ -186,6 +202,7 @@
   
     /**
      * Hyphenate a camelCase string.
+     * 驼峰转连字符
      */
     var hyphenateRE = /\B([A-Z])/g;
     var hyphenate = cached(function (str) {
@@ -200,7 +217,7 @@
      * PhantomJS 1.x, so this must be kept for backward compatibility.
      */
   
-    /* istanbul ignore next */
+    // 函数bind方法的polyfill
     function polyfillBind (fn, ctx) {
       function boundFn (a) {
         var l = arguments.length;
@@ -225,6 +242,10 @@
   
     /**
      * Convert an Array-like object to a real Array.
+     * 类数组转真数组
+     * @param {ArrayLike} list  类数组对象
+     * @param {Number} start 开始转换的索引
+     * @returns {Array} 新数组
      */
     function toArray (list, start) {
       start = start || 0;
@@ -238,6 +259,10 @@
   
     /**
      * Mix properties into target object.
+     * 将属性混合到目标对象中。会覆盖目标的原有属性
+     * @param {Object} to 目标对象
+     * @param {Object} _from 将要混入的对象
+     * @returns {Object} to 返回目标对象
      */
     function extend (to, _from) {
       for (var key in _from) {
@@ -248,6 +273,9 @@
   
     /**
      * Merge an Array of Objects into a single Object.
+     * 将一个对象数组合并到一个对象中。
+     * @param {Array} arr 对象组成的数组
+     * @returns {Object} 对象
      */
     function toObject (arr) {
       var res = {};
@@ -259,8 +287,6 @@
       return res
     }
   
-    /* eslint-disable no-unused-vars */
-  
     /**
      * Perform no operation.
      * Stubbing args to make Flow happy without leaving useless transpiled code
@@ -270,18 +296,20 @@
   
     /**
      * Always return false.
+     * @returns {Boolean} 始终为false
      */
     var no = function (a, b, c) { return false; };
   
-    /* eslint-enable no-unused-vars */
-  
     /**
      * Return the same value.
+     * 返回相同的值。
      */
     var identity = function (_) { return _; };
   
     /**
      * Generate a string containing static keys from compiler modules.
+     * 从编译器模块生成包含静态键的字符串。
+     * genStaticKeys([{staticKeys:'a'},{staticKeys:'b'},{staticKeys:'c'}]) => 'a,b,c'
      */
     function genStaticKeys (modules) {
       return modules.reduce(function (keys, m) {
@@ -292,6 +320,7 @@
     /**
      * Check if two values are loosely equal - that is,
      * if they are plain objects, do they have the same shape?
+     * 检查两个值是否松散相等
      */
     function looseEqual (a, b) {
       if (a === b) { return true }
@@ -314,11 +343,9 @@
               return looseEqual(a[key], b[key])
             })
           } else {
-            /* istanbul ignore next */
             return false
           }
         } catch (e) {
-          /* istanbul ignore next */
           return false
         }
       } else if (!isObjectA && !isObjectB) {
@@ -341,7 +368,9 @@
     }
   
     /**
-     * Ensure a function is called only once.
+     * 函数只能执行一次
+     * @param {Function} fn 
+     * @returns {Function}
      */
     function once (fn) {
       var called = false;
@@ -376,15 +405,12 @@
       'serverPrefetch'
     ];
   
-    /*  */
-  
-  
-  
     var config = ({
       /**
        * Option merge strategies (used in core/util/options)
+       * Option合并策略，可以自定义
        */
-      // $flow-disable-line
+      
       optionMergeStrategies: Object.create(null),
   
       /**
@@ -394,83 +420,98 @@
   
       /**
        * Show production mode tip message on boot?
+       *  vue 在启动时生成生产提示。
        */
       productionTip: "development" !== 'production',
   
       /**
        * Whether to enable devtools
+       * 是否启用devtools
        */
       devtools: "development" !== 'production',
   
       /**
        * Whether to record perf
        */
-      performance: false,
+      performance: true,
   
       /**
        * Error handler for watcher errors
+       * 指定组件的渲染和观察期间未捕获错误的处理函数。这个处理函数被调用时，可获取错误信息和 Vue 实例。
        */
       errorHandler: null,
   
       /**
        * Warn handler for watcher warns
+       * 为 Vue 的运行时警告赋予一个自定义处理函数。注意这只会在开发者环境下生效，在生产环境下它会被忽略。
        */
       warnHandler: null,
   
       /**
        * Ignore certain custom elements
+       * 须使 Vue 忽略在 Vue 之外的自定义元素 (e.g. 使用了 Web Components APIs)。否则，它会假设你忘记注册全局组件或者拼错了组件名称，从而抛出一个关于 Unknown custom element 的警告。
        */
       ignoredElements: [],
   
       /**
        * Custom user key aliases for v-on
+       * 给 v-on 自定义键位别名。
        */
-      // $flow-disable-line
+      
       keyCodes: Object.create(null),
   
       /**
        * Check if a tag is reserved so that it cannot be registered as a
        * component. This is platform-dependent and may be overwritten.
+       * 检查便签是否为保留标签，不能将其注册为组件。这是平台相关的，可能会被覆盖。
        */
       isReservedTag: no,
   
       /**
        * Check if an attribute is reserved so that it cannot be used as a component
        * prop. This is platform-dependent and may be overwritten.
+       * 检查属性是否已保留，以便不能用作组件属性。
        */
       isReservedAttr: no,
   
       /**
        * Check if a tag is an unknown element.
        * Platform-dependent.
+       * 检查标签是否为未知元素。
        */
       isUnknownElement: no,
   
       /**
        * Get the namespace of an element
+       * 获取元素的命名空间
        */
       getTagNamespace: noop,
   
       /**
        * Parse the real tag name for the specific platform.
+       * 解析特定平台的真实标签名称。
        */
       parsePlatformTagName: identity,
   
       /**
        * Check if an attribute must be bound using property, e.g. value
        * Platform-dependent.
+       * 检查是否必须使用property绑定attribute
        */
       mustUseProp: no,
   
       /**
        * Perform updates asynchronously. Intended to be used by Vue Test Utils
        * This will significantly reduce performance if set to false.
+       * 异步执行更新。 打算由Vue Test Utils使用。如果设置为false，这将显著降低降低性能。
+       * https://vue-test-utils.vuejs.org/zh/
        */
       async: true,
   
       /**
        * Exposed for legacy reasons
        */
+      //? https://github.com/vuejs/vue/issues/5391
       _lifecycleHooks: LIFECYCLE_HOOKS
     });
   
@@ -480,11 +521,13 @@
      * unicode letters used for parsing html tags, component names and property paths.
      * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
      * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
+     * 用于解析html标记、组件名称和属性路径的unicode字母。
      */
     var unicodeRegExp = /a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD/;
   
     /**
      * Check if a string starts with $ or _
+     * 检查字符串是否以$或_开头
      */
     function isReserved (str) {
       var c = (str + '').charCodeAt(0);
@@ -493,6 +536,7 @@
   
     /**
      * Define a property.
+     * 定义一个属性。
      */
     function def (obj, key, val, enumerable) {
       Object.defineProperty(obj, key, {
@@ -505,8 +549,19 @@
   
     /**
      * Parse simple path.
+     * 解析简单路径。
+     */
+    /**
+     * bailRE = /[^a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD.$_\d]/
      */
     var bailRE = new RegExp(("[^" + (unicodeRegExp.source) + ".$_\\d]"));
+    //  var person = {
+    //     name: {
+    //         first:'a',
+    //         last: 'b'
+    //     }
+    // }
+    // parsePath(name.first)(person) => 'a'
     function parsePath (path) {
       if (bailRE.test(path)) {
         return
@@ -541,6 +596,7 @@
     var isFF = UA && UA.match(/firefox\/(\d+)/);
   
     // Firefox has a "watch" function on Object.prototype...
+    // Firefox浏览器在Object.prototype上有一个"watch" function
     var nativeWatch = ({}).watch;
   
     var supportsPassive = false;
@@ -549,7 +605,7 @@
         var opts = {};
         Object.defineProperty(opts, 'passive', ({
           get: function get () {
-            /* istanbul ignore next */
+            
             supportsPassive = true;
           }
         })); // https://github.com/facebook/flow/issues/285
@@ -559,6 +615,7 @@
   
     // this needs to be lazy-evaled because vue may be required before
     // vue-server-renderer can set VUE_ENV
+    // 这需要延迟评估，因为在vue-server-renderer设置VUE_ENV之前可能需要vue
     var _isServer;
     var isServerRendering = function () {
       if (_isServer === undefined) {
@@ -574,20 +631,20 @@
       return _isServer
     };
   
-    // detect devtools
+    // detect devtools 检测devtools
     var devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
   
-    /* istanbul ignore next */
+    // 是否为内置函数
     function isNative (Ctor) {
       return typeof Ctor === 'function' && /native code/.test(Ctor.toString())
     }
-  
+    // 是否支持Symbol
     var hasSymbol =
       typeof Symbol !== 'undefined' && isNative(Symbol) &&
       typeof Reflect !== 'undefined' && isNative(Reflect.ownKeys);
-  
+    
+    // 如果支持set则使用原生set，否则polyfill,只能使用基本键
     var _Set;
-    /* istanbul ignore if */ // $flow-disable-line
     if (typeof Set !== 'undefined' && isNative(Set)) {
       // use native Set when available.
       _Set = Set;
@@ -615,16 +672,17 @@
   
     var warn = noop;
     var tip = noop;
-    var generateComponentTrace = (noop); // work around flow check
+    var generateComponentTrace = (noop);
     var formatComponentName = (noop);
-  
+    // 只在开发环境中使用
     {
       var hasConsole = typeof console !== 'undefined';
       var classifyRE = /(?:^|[-_])(\w)/g;
+      // classify('a-b_c') => 'ABC'
       var classify = function (str) { return str
         .replace(classifyRE, function (c) { return c.toUpperCase(); })
         .replace(/[-_]/g, ''); };
-  
+
       warn = function (msg, vm) {
         var trace = vm ? generateComponentTrace(vm) : '';
   
@@ -642,7 +700,7 @@
           ));
         }
       };
-  
+    // 格式化组件名
       formatComponentName = function (vm, includeFile) {
         if (vm.$root === vm) {
           return '<Root>'
@@ -674,7 +732,7 @@
         }
         return res
       };
-  
+      // 生成组件跟踪
       generateComponentTrace = function (vm) {
         if (vm._isVue && vm.$parent) {
           var tree = [];
@@ -705,13 +763,12 @@
       };
     }
   
-    /*  */
-  
     var uid = 0;
   
     /**
      * A dep is an observable that can have multiple
      * directives subscribing to it.
+     * 一个dep是一个可观察的对象，可以有多个指令订阅它。
      */
     var Dep = function Dep () {
       this.id = uid++;
@@ -749,6 +806,7 @@
     // The current target watcher being evaluated.
     // This is globally unique because only one watcher
     // can be evaluated at a time.
+    // 当前正在评估的目标观察者。 这是全局唯一的，因为一次只能评估一个观察者。
     Dep.target = null;
     var targetStack = [];
   
@@ -762,7 +820,7 @@
       Dep.target = targetStack[targetStack.length - 1];
     }
   
-    /*  */
+    /* 虚拟dom */
   
     var VNode = function VNode (
       tag,
@@ -774,27 +832,27 @@
       componentOptions,
       asyncFactory
     ) {
-      this.tag = tag;
-      this.data = data;
-      this.children = children;
-      this.text = text;
-      this.elm = elm;
-      this.ns = undefined;
-      this.context = context;
-      this.fnContext = undefined;
-      this.fnOptions = undefined;
-      this.fnScopeId = undefined;
-      this.key = data && data.key;
-      this.componentOptions = componentOptions;
-      this.componentInstance = undefined;
-      this.parent = undefined;
+      this.tag = tag; //标签名
+      this.data = data; // 属性对应的数据对象,class,attrs,props,on ...
+      this.children = children;  //子节点
+      this.text = text;  //文本内容
+      this.elm = elm;  //原生dom元素
+      this.ns = undefined; //命名空间
+      this.context = context; // 当前节点所在vue实例
+      this.fnContext = undefined;  //? 函数式组件上下文
+      this.fnOptions = undefined;  //? 函数式组件options
+      this.fnScopeId = undefined;  //? 函数式组件作用域id
+      this.key = data && data.key; // 虚拟dom的key值
+      this.componentOptions = componentOptions; //? 组件的options
+      this.componentInstance = undefined; //组件实例
+      this.parent = undefined; //父节点
       this.raw = false;
-      this.isStatic = false;
-      this.isRootInsert = true;
-      this.isComment = false;
-      this.isCloned = false;
-      this.isOnce = false;
-      this.asyncFactory = asyncFactory;
+      this.isStatic = false;  // 是否为静态节点
+      this.isRootInsert = true; //?
+      this.isComment = false; // 是否为注释节点
+      this.isCloned = false;  // 是否为克隆节点
+      this.isOnce = false;  // 计算一次然后缓存起来
+      this.asyncFactory = asyncFactory; //?
       this.asyncMeta = undefined;
       this.isAsyncPlaceholder = false;
     };
@@ -802,13 +860,13 @@
     var prototypeAccessors = { child: { configurable: true } };
   
     // DEPRECATED: alias for componentInstance for backwards compat.
-    /* istanbul ignore next */
+    // 不推荐使用：向后兼容的componentInstance的别名。
     prototypeAccessors.child.get = function () {
       return this.componentInstance
     };
   
     Object.defineProperties( VNode.prototype, prototypeAccessors );
-  
+    // 创建一个空节点，标记为注释节点  
     var createEmptyVNode = function (text) {
       if ( text === void 0 ) text = '';
   
@@ -817,7 +875,7 @@
       node.isComment = true;
       return node
     };
-  
+    // 创建文本节点
     function createTextVNode (val) {
       return new VNode(undefined, undefined, undefined, String(val))
     }
@@ -833,6 +891,7 @@
         // #7975
         // clone children array to avoid mutating original in case of cloning
         // a child.
+        //? 克隆子元素数组，以避免在克隆子元素时发生原元素的突变。
         vnode.children && vnode.children.slice(),
         vnode.text,
         vnode.elm,
@@ -852,14 +911,12 @@
       return cloned
     }
   
-    /*
-     * not type checking this file because flow doesn't play well with
-     * dynamically accessing methods on Array prototype
-     */
-  
+    // 数组原型对象
     var arrayProto = Array.prototype;
+    // 继承
     var arrayMethods = Object.create(arrayProto);
-  
+    // console.log(arrayMethods);
+    // 需要补丁的方法，（可以改变数组的方法）
     var methodsToPatch = [
       'push',
       'pop',
@@ -872,16 +929,20 @@
   
     /**
      * Intercept mutating methods and emit events
+     * 拦截突变方法并发出事件
      */
     methodsToPatch.forEach(function (method) {
-      // cache original method
+      // 缓存原生方法
       var original = arrayProto[method];
       def(arrayMethods, method, function mutator () {
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
-  
+        
+        // 执行原来的方法
         var result = original.apply(this, args);
+        // 取出数组的observe对象
         var ob = this.__ob__;
+        // 新插入的值
         var inserted;
         switch (method) {
           case 'push':
@@ -892,20 +953,22 @@
             inserted = args.slice(2);
             break
         }
+        // 观察新元素
         if (inserted) { ob.observeArray(inserted); }
-        // notify change
+        // 触发wather
         ob.dep.notify();
         return result
       });
     });
   
-    /*  */
+    /* 获取拦截的方法 */
   
     var arrayKeys = Object.getOwnPropertyNames(arrayMethods);
   
     /**
      * In some cases we may want to disable observation inside a component's
      * update computation.
+     * 在某些情况下，我们可能希望禁用组件更新计算中的观察。
      */
     var shouldObserve = true;
   
@@ -918,13 +981,17 @@
      * object. Once attached, the observer converts the target
      * object's property keys into getter/setters that
      * collect dependencies and dispatch updates.
+     * 附加到每个被观察对象的观察者类。一旦附加，观察者将目标对象的属性键转换为getter/setter，以收集依赖项和分派更新。
      */
     var Observer = function Observer (value) {
       this.value = value;
       this.dep = new Dep();
+      // 标识根data
       this.vmCount = 0;
+      //在value上添加观察者实例
       def(value, '__ob__', this);
       if (Array.isArray(value)) {
+         // 如果支持__proto__直接覆盖数组的原型，否则将增强的方法混入数组
         if (hasProto) {
           protoAugment(value, arrayMethods);
         } else {
@@ -940,6 +1007,7 @@
      * Walk through all properties and convert them into
      * getter/setters. This method should only be called when
      * value type is Object.
+     * 遍历所有属性并将它们转换为getter/setter。仅当值类型为Object时才应调用此方法。
      */
     Observer.prototype.walk = function walk (obj) {
       var keys = Object.keys(obj);
@@ -950,6 +1018,7 @@
   
     /**
      * Observe a list of Array items.
+     * 观察数组项的列表。
      */
     Observer.prototype.observeArray = function observeArray (items) {
       for (var i = 0, l = items.length; i < l; i++) {
@@ -962,18 +1031,17 @@
     /**
      * Augment a target Object or Array by intercepting
      * the prototype chain using __proto__
+     * 通过使用_proto__拦截原型链来增加目标对象或数组
      */
     function protoAugment (target, src) {
-      /* eslint-disable no-proto */
       target.__proto__ = src;
-      /* eslint-enable no-proto */
     }
   
     /**
      * Augment a target Object or Array by defining
      * hidden properties.
      */
-    /* istanbul ignore next */
+    
     function copyAugment (target, src, keys) {
       for (var i = 0, l = keys.length; i < l; i++) {
         var key = keys[i];
@@ -985,6 +1053,7 @@
      * Attempt to create an observer instance for a value,
      * returns the new observer if successfully observed,
      * or the existing observer if the value already has one.
+     * 尝试为一个值创建一个观察者实例，如果成功观察到，则返回新的观察者，如果该值已经存在，则返回现有的观察者。
      */
     function observe (value, asRootData) {
       if (!isObject(value) || value instanceof VNode) {
@@ -1010,6 +1079,7 @@
   
     /**
      * Define a reactive property on an Object.
+     * 在对象上定义reactive属性。
      */
     function defineReactive$$1 (
       obj,
@@ -1021,17 +1091,19 @@
       var dep = new Dep();
   
       var property = Object.getOwnPropertyDescriptor(obj, key);
+        // 属性不可配置
       if (property && property.configurable === false) {
         return
       }
   
-      // cater for pre-defined getter/setters
+      // 获取属性原来的getter,seter函数
       var getter = property && property.get;
       var setter = property && property.set;
+      //? getter函数不存在，setter函数存在，并且只有两个参数那么value = obj[key]   
       if ((!getter || setter) && arguments.length === 2) {
         val = obj[key];
       }
-  
+     //  观察子属性并返回Observe实例
       var childOb = !shallow && observe(val);
       Object.defineProperty(obj, key, {
         enumerable: true,
@@ -1051,21 +1123,24 @@
         },
         set: function reactiveSetter (newVal) {
           var value = getter ? getter.call(obj) : val;
-          /* eslint-disable no-self-compare */
+          // 新旧值相等(包括NaN)
           if (newVal === value || (newVal !== newVal && value !== value)) {
             return
           }
-          /* eslint-enable no-self-compare */
+          // 自定义的setter函数，多用于设置一些不建议改变的值时，打印出警告
           if (customSetter) {
             customSetter();
           }
           // #7981: for accessor properties without setter
+          // ?getter函数存在，setter函数不存在，不能改变原来的值
           if (getter && !setter) { return }
           if (setter) {
             setter.call(obj, newVal);
           } else {
             val = newVal;
           }
+        //   console.log({newVal});
+          // 观察新值
           childOb = !shallow && observe(newVal);
           dep.notify();
         }
@@ -1076,6 +1151,7 @@
      * Set a property on an object. Adds the new property and
      * triggers change notification if the property doesn't
      * already exist.
+     * 设置对象的属性。添加新属性并在属性不存在时触发更改通知。
      */
     function set (target, key, val) {
       if (isUndef(target) || isPrimitive(target)
@@ -1110,6 +1186,7 @@
   
     /**
      * Delete a property and trigger change if necessary.
+     * 删除属性并在必要时触发更改。
      */
     function del (target, key) {
       if (isUndef(target) || isPrimitive(target)
@@ -1151,18 +1228,20 @@
         }
       }
     }
-  
-    /*  */
+
   
     /**
      * Option overwriting strategies are functions that handle
      * how to merge a parent option value and a child option
      * value into the final value.
+     * 选项覆盖策略是处理如何将父选项值和子选项值合并到最终值的函数。
      */
     var strats = config.optionMergeStrategies;
   
     /**
      * Options with restrictions
+     * 有限制的选项
+     * el和propsData采用默认的合并策略
      */
     {
       strats.el = strats.propsData = function (parent, child, vm, key) {
@@ -1178,6 +1257,7 @@
   
     /**
      * Helper that recursively merges two data objects together.
+     * 递归地合并两个数据对象的帮助程序。
      */
     function mergeData (to, from) {
       if (!from) { return to }
@@ -1186,13 +1266,14 @@
       var keys = hasSymbol
         ? Reflect.ownKeys(from)
         : Object.keys(from);
-  
+    // 遍历from的key
       for (var i = 0; i < keys.length; i++) {
         key = keys[i];
         // in case the object is already observed...
         if (key === '__ob__') { continue }
         toVal = to[key];
         fromVal = from[key];
+        // 如果子选项不存在key,那么给子选项添加该key并观察
         if (!hasOwn(to, key)) {
           set(to, key, fromVal);
         } else if (
@@ -1216,6 +1297,7 @@
     ) {
       if (!vm) {
         // in a Vue.extend merge, both should be functions
+        // 在Vue.extend中，两者都应该是函数
         if (!childVal) {
           return parentVal
         }
@@ -1227,6 +1309,9 @@
         // merged result of both functions... no need to
         // check if parentVal is a function here because
         // it has to be a function to pass previous merges.
+        //?当parentVal和childVal都存在时，我们需要返回一个函数，
+        //?该函数返回两个函数合并后的结果……这里不需要检查parentVal是否是一个函数，
+        //? 因为它必须是一个函数才能传递先前的合并。
         return function mergedDataFn () {
           return mergeData(
             typeof childVal === 'function' ? childVal.call(this, this) : childVal,
@@ -1250,7 +1335,7 @@
         }
       }
     }
-  
+    // 数据对象在内部会进行递归合并，并在发生冲突时以组件数据优先。
     strats.data = function (
       parentVal,
       childVal,
@@ -1275,11 +1360,15 @@
   
     /**
      * Hooks and props are merged as arrays.
+     * 同名钩子函数将合并为一个数组，因此都将被调用。
+     * 另外，混入对象的钩子将在组件自身钩子之前调用。
+     * hook是一个数组
      */
     function mergeHook (
       parentVal,
       childVal
     ) {
+
       var res = childVal
         ? parentVal
           ? parentVal.concat(childVal)
@@ -1287,6 +1376,7 @@
             ? childVal
             : [childVal]
         : parentVal;
+    
       return res
         ? dedupeHooks(res)
         : res
@@ -1319,6 +1409,7 @@
       vm,
       key
     ) {
+     //? 子选项有则取子选项的值，否则去原型上查找，即父选项
       var res = Object.create(parentVal || null);
       if (childVal) {
         assertObjectType(key, childVal, vm);
@@ -1327,7 +1418,7 @@
         return res
       }
     }
-  
+    // filters、components 和 directives，将被合并为同一个对象。两个对象键名冲突时，取组件对象的键值对。
     ASSET_TYPES.forEach(function (type) {
       strats[type + 's'] = mergeAssets;
     });
@@ -1337,6 +1428,7 @@
      *
      * Watchers hashes should not overwrite one
      * another, so we merge them as arrays.
+     * 观察者散列不应该互相覆盖，所以我们将它们合并为数组。
      */
     strats.watch = function (
       parentVal,
@@ -1369,7 +1461,7 @@
     };
   
     /**
-     * Other object hashes.
+     * 两个对象键名冲突时，取组件对象的键值对。
      */
     strats.props =
     strats.methods =
@@ -1393,6 +1485,7 @@
   
     /**
      * Default strategy.
+     * 默认合并策略，子选项的值不存在时，取父选项的值
      */
     var defaultStrat = function (parentVal, childVal) {
       return childVal === undefined
@@ -1402,13 +1495,14 @@
   
     /**
      * Validate component names
+     * 验证组件名称
      */
     function checkComponents (options) {
       for (var key in options.components) {
         validateComponentName(key);
       }
     }
-  
+    
     function validateComponentName (name) {
       if (!new RegExp(("^[a-zA-Z][\\-\\.0-9_" + (unicodeRegExp.source) + "]*$")).test(name)) {
         warn(
@@ -1503,7 +1597,7 @@
         }
       }
     }
-  
+    // 断言object类型
     function assertObjectType (name, value, vm) {
       if (!isPlainObject(value)) {
         warn(
@@ -1998,7 +2092,7 @@
         pending = true;
         timerFunc();
       }
-      // $flow-disable-line
+      
       if (!cb && typeof Promise !== 'undefined') {
         return new Promise(function (resolve) {
           _resolve = resolve;
@@ -2974,14 +3068,14 @@
       var contextVm;
       if (hasOwn(parent, '_uid')) {
         contextVm = Object.create(parent);
-        // $flow-disable-line
+        
         contextVm._original = parent;
       } else {
         // the context vm passed in is a functional context as well.
         // in this case we want to make sure we are able to get a hold to the
         // real context instance.
         contextVm = parent;
-        // $flow-disable-line
+        
         parent = parent._original;
       }
       var isCompiled = isTrue(options._compiled);
@@ -4754,7 +4848,7 @@
     var computedWatcherOptions = { lazy: true };
   
     function initComputed (vm, computed) {
-      // $flow-disable-line
+      
       var watchers = vm._computedWatchers = Object.create(null);
       // computed properties are just getters during SSR
       var isSSR = isServerRendering();
@@ -5255,7 +5349,7 @@
       } else if (isRegExp(pattern)) {
         return pattern.test(name)
       }
-      /* istanbul ignore next */
+      
       return false
     }
   
@@ -5433,7 +5527,7 @@
   
     Object.defineProperty(Vue.prototype, '$ssrContext', {
       get: function get () {
-        /* istanbul ignore next */
+        
         return this.$vnode && this.$vnode.ssrContext
       }
     });
@@ -5534,7 +5628,7 @@
       if (isDef(staticClass) || isDef(dynamicClass)) {
         return concat(staticClass, stringifyClass(dynamicClass))
       }
-      /* istanbul ignore next */
+      
       return ''
     }
   
@@ -5552,7 +5646,7 @@
       if (typeof value === 'string') {
         return value
       }
-      /* istanbul ignore next */
+      
       return ''
     }
   
@@ -5782,7 +5876,7 @@
           if (!Array.isArray(refs[key])) {
             refs[key] = [ref];
           } else if (refs[key].indexOf(ref) < 0) {
-            // $flow-disable-line
+            
             refs[key].push(ref);
           }
         } else {
@@ -6645,20 +6739,20 @@
     ) {
       var res = Object.create(null);
       if (!dirs) {
-        // $flow-disable-line
+        
         return res
       }
       var i, dir;
       for (i = 0; i < dirs.length; i++) {
         dir = dirs[i];
         if (!dir.modifiers) {
-          // $flow-disable-line
+          
           dir.modifiers = emptyModifiers;
         }
         res[getRawDirName(dir)] = dir;
         dir.def = resolveAsset(vm.$options, 'directives', dir.name, true);
       }
-      // $flow-disable-line
+      
       return res
     }
   
@@ -6772,7 +6866,7 @@
             el.removeEventListener('input', blocker);
           };
           el.addEventListener('input', blocker);
-          // $flow-disable-line
+          
           el.__ieph = true; /* IE placeholder patched */
         }
         el.setAttribute(key, value);
@@ -7986,7 +8080,7 @@
       ? window.requestAnimationFrame
         ? window.requestAnimationFrame.bind(window)
         : setTimeout
-      : /* istanbul ignore next */ function (fn) { return fn(); };
+      :  function (fn) { return fn(); };
   
     function nextFrame (fn) {
       raf(function () {
@@ -8093,7 +8187,7 @@
     }
   
     function getTimeout (delays, durations) {
-      /* istanbul ignore next */
+      
       while (delays.length < durations.length) {
         delays = delays.concat(delays);
       }
@@ -8934,7 +9028,7 @@
   
         // force reflow to put everything in position
         // assign to this to avoid being removed in tree-shaking
-        // $flow-disable-line
+        
         this._reflow = document.body.offsetHeight;
   
         children.forEach(function (c) {
@@ -9044,8 +9138,8 @@
       return mountComponent(this, el, hydrating)
     };
   
-    // devtools global hook
-    /* istanbul ignore next */
+
+    // devtools global hook 初始化vue devtools
     if (inBrowser) {
       setTimeout(function () {
         if (config.devtools) {
@@ -9070,7 +9164,33 @@
       }, 0);
     }
   
-    /*  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* 
+    
+    
+    
+    模板编译器 
+    
+    
+    
+    
+    
+    */
   
     var defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g;
     var regexEscapeRE = /[-.*+?^${}()|[\]\/\\]/g;
@@ -10452,7 +10572,7 @@
     var ieNSBug = /^xmlns:NS\d+/;
     var ieNSPrefix = /^NS\d+:/;
   
-    /* istanbul ignore next */
+    
     function guardIESVGBug (attrs) {
       var res = [];
       for (var i = 0; i < attrs.length; i++) {
@@ -11771,7 +11891,7 @@
   
           if (options) {
             if (options.outputSourceRange) {
-              // $flow-disable-line
+              
               var leadingSpaceLength = template.match(/^\s*/)[0].length;
   
               warn = function (msg, range, tip) {
