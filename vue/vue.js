@@ -2360,9 +2360,10 @@
             vm
           );
         } 
-        // 如果旧的同名事件不存在
+        // 如果旧的同名事件不存在，新增事件
         else if (isUndef(old)) {
             // 创建一个函数调用，并保存在新的事件对象中 
+            //? 为何要判断cur.fns,是否经过createFnInvoker包装？
           if (isUndef(cur.fns)) {
             cur = on[name] = createFnInvoker(cur, vm);
           }
@@ -2370,11 +2371,15 @@
             cur = on[name] = createOnceHandler(event.name, cur, event.capture);
           }
           add(event.name, cur, event.capture, event.passive, event.params);
-        } else if (cur !== old) {
+        } 
+        // 更新事件
+        else if (cur !== old) {
+            //?
           old.fns = cur;
           on[name] = old;
         }
       }
+        //  删除事件
       for (name in oldOn) {
         if (isUndef(on[name])) {
           event = normalizeEvent(name);
@@ -2533,6 +2538,7 @@
       var i, c, lastIndex, last;
       for (i = 0; i < children.length; i++) {
         c = children[i];
+        // null,undefined,false,true不会渲染
         if (isUndef(c) || typeof c === 'boolean') { continue }
         lastIndex = res.length - 1;
         last = res[lastIndex];
@@ -2548,16 +2554,21 @@
             res.push.apply(res, c);
           }
         } else if (isPrimitive(c)) {
+            // debugger
+            // 如果相邻节点都是文本节点，合并成一个文本节点
           if (isTextNode(last)) {
             // merge adjacent text nodes
             // this is necessary for SSR hydration because text nodes are
             // essentially merged when rendered to HTML strings
+            // 合并相邻的文本节点这对于SSR hydration是必要的，因为文本节点在呈现为HTML字符串时本质上是合并的
             res[lastIndex] = createTextVNode(last.text + c);
           } else if (c !== '') {
+            // 空字符串不会生成节点
             // convert primitive to vnode
             res.push(createTextVNode(c));
           }
         } else {
+            // 如果两个节点都是文本节点，合并成一个节点
           if (isTextNode(c) && isTextNode(last)) {
             // merge adjacent text nodes
             res[lastIndex] = createTextVNode(last.text + c.text);
@@ -2609,7 +2620,6 @@
   
     function resolveInject (inject, vm) {
       if (inject) {
-        // inject is :any because flow is not smart enough to figure out cached
         var result = Object.create(null);
         var keys = hasSymbol
           ? Reflect.ownKeys(inject)
@@ -3340,16 +3350,18 @@
       if (isUndef(Ctor)) {
         return
       }
-  
+     //  取出Vue构造函数
       var baseCtor = context.$options._base;
   
       // plain options object: turn it into a constructor
+       // 如果Ctor是普通选项对象:使用Vue.extend将其转换为构造函数
       if (isObject(Ctor)) {
         Ctor = baseCtor.extend(Ctor);
       }
   
       // if at this stage it's not a constructor or an async component factory,
       // reject.
+      // 如果在此阶段它不是构造函数或异步组件工厂，结束。
       if (typeof Ctor !== 'function') {
         {
           warn(("Invalid Component definition: " + (String(Ctor))), context);
@@ -3357,7 +3369,7 @@
         return
       }
   
-      // async component
+      //? async component
       var asyncFactory;
       if (isUndef(Ctor.cid)) {
         asyncFactory = Ctor;
@@ -3388,6 +3400,7 @@
       }
   
       // extract props
+      // 从VNode数据中提取props
       var propsData = extractPropsFromVNodeData(data, Ctor, tag);
   
       // functional component
@@ -3397,9 +3410,11 @@
   
       // extract listeners, since these needs to be treated as
       // child component listeners instead of DOM listeners
+      // 提取侦听器，因为这些侦听器需要被视为子组件侦听器，而不是DOM侦听器
       var listeners = data.on;
       // replace with listeners with .native modifier
       // so it gets processed during parent component patch.
+      // 用.native修饰符替换监听器，以便在父组件补丁期间处理它。
       data.on = data.nativeOn;
   
       if (isTrue(Ctor.options.abstract)) {
@@ -3516,6 +3531,7 @@
       if (isTrue(alwaysNormalize)) {
         normalizationType = ALWAYS_NORMALIZE;
       }
+      
       return _createElement(context, tag, data, children, normalizationType)
     }
   
@@ -3554,6 +3570,7 @@
         }
       }
       // support single function children as default scoped slot
+      // 支持单函数子级作为默认作用域插槽
       if (Array.isArray(children) &&
         typeof children[0] === 'function'
       ) {
@@ -3572,6 +3589,7 @@
         ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag);
         if (config.isReservedTag(tag)) {
           // platform built-in elements
+         // 仅用于组件，用于监听原生事件 
           if (isDef(data) && isDef(data.nativeOn)) {
             warn(
               ("The .native modifier for v-on is only valid on components but it was used on <" + tag + ">."),
@@ -3584,6 +3602,7 @@
           );
         } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
           // component
+          
           vnode = createComponent(Ctor, data, context, children, tag);
         } else {
           // unknown or unlisted namespaced elements
@@ -3630,6 +3649,7 @@
     // ref #5318
     // necessary to ensure parent re-render when deep bindings like :style and
     // :class are used on slot nodes
+    // 在slot节点上使用:style和:class这样的深度绑定时，需要确保父节点重新render
     function registerDeepBindings (data) {
       if (isObject(data.style)) {
         traverse(data.style);
@@ -3639,27 +3659,31 @@
       }
     }
   
-    /*  */
-  
+    // 初始化render函数
     function initRender (vm) {
-      vm._vnode = null; // the root of the child tree
-      vm._staticTrees = null; // v-once cached trees
+      vm._vnode = null; // the root of the child tree 子树的根节点
+      vm._staticTrees = null; // v-once cached trees v-once缓存的树
       var options = vm.$options;
-      var parentVnode = vm.$vnode = options._parentVnode; // the placeholder node in parent tree
+      // 父树中的占位符节点
+      var parentVnode = vm.$vnode = options._parentVnode;
+      //  父节点的vue实例
       var renderContext = parentVnode && parentVnode.context;
+     //   插槽
       vm.$slots = resolveSlots(options._renderChildren, renderContext);
       vm.$scopedSlots = emptyObject;
       // bind the createElement fn to this instance
       // so that we get proper render context inside it.
       // args order: tag, data, children, normalizationType, alwaysNormalize
       // internal version is used by render functions compiled from templates
+      // 将createElement fn绑定到这个实例，这样我们就可以在其中获得适当的呈现上下文。args顺序:标签，数据，子元素，normalizationType, alwaysNormalize内部版本是由模板编译的渲染函数使用的
       vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
       // normalization is always applied for the public version, used in
-      // user-written render functions.
+      // user-written render functions. 用于用户编写的render函数。
       vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
   
       // $attrs & $listeners are exposed for easier HOC creation.
       // they need to be reactive so that HOCs using them are always updated
+      // 公开$ attrs和$ listeners可以更轻松地创建高阶组件。
       var parentData = parentVnode && parentVnode.data;
   
       /* istanbul ignore else */
@@ -3707,7 +3731,9 @@
           // separately from one another. Nested component's render fns are called
           // when parent component is patched.
           currentRenderingInstance = vm;
+ 
           vnode = render.call(vm._renderProxy, vm.$createElement);
+      
         } catch (e) {
           handleError(e, vm, "render");
           // return error render result,
@@ -3727,10 +3753,12 @@
           currentRenderingInstance = null;
         }
         // if the returned array contains only a single node, allow it
+        // 如果返回的数组只包含一个节点，则允许它
         if (Array.isArray(vnode) && vnode.length === 1) {
           vnode = vnode[0];
         }
         // return empty vnode in case the render function errored out
+        // 返回空的vnode，以防呈现函数出错
         if (!(vnode instanceof VNode)) {
           if (Array.isArray(vnode)) {
             warn(
@@ -3915,14 +3943,12 @@
       }
     }
   
-    /*  */
-  
-    /*  */
-  
+    // 初始化事件，父子组件通信绑定的事件
     function initEvents (vm) {
       vm._events = Object.create(null);
       vm._hasHookEvent = false;
       // init parent attached events
+      // 父组件的侦听器
       var listeners = vm.$options._parentListeners;
       if (listeners) {
         updateComponentListeners(vm, listeners);
@@ -3950,12 +3976,13 @@
         }
       }
     }
-  
+    // 更新组件通信事件
     function updateComponentListeners (
       vm,
       listeners,
       oldListeners
     ) {
+        //? 为什么缓存
       target = vm;
       updateListeners(listeners, oldListeners || {}, add, remove$1, createOnceHandler, vm);
       target = undefined;
@@ -4184,6 +4211,7 @@
       hydrating
     ) {
       vm.$el = el;
+
       if (!vm.$options.render) {
         vm.$options.render = createEmptyVNode;
         {
@@ -4813,6 +4841,7 @@
     function initState (vm) {
       vm._watchers = [];
       var opts = vm.$options;
+  
       if (opts.props) { initProps(vm, opts.props); }
       if (opts.methods) { initMethods(vm, opts.methods); }
       if (opts.data) {
@@ -4829,8 +4858,10 @@
     function initProps (vm, propsOptions) {
       var propsData = vm.$options.propsData || {};
       var props = vm._props = {};
+       
       // cache prop keys so that future props updates can iterate using Array
       // instead of dynamic object key enumeration.
+      // 缓存prop keys，以便未来的prop更新可以使用数组迭代，而不是动态对象键枚举。
       var keys = vm.$options._propKeys = [];
       var isRoot = !vm.$parent;
       // root instance props should be converted
@@ -4840,7 +4871,7 @@
       var loop = function ( key ) {
         keys.push(key);
         var value = validateProp(key, propsOptions, propsData, vm);
-        /* istanbul ignore else */
+        
         {
           var hyphenatedKey = hyphenate(key);
           if (isReservedAttribute(hyphenatedKey) ||
@@ -4865,6 +4896,7 @@
         // static props are already proxied on the component's prototype
         // during Vue.extend(). We only need to proxy props defined at
         // instantiation here.
+        // 在Vue.extend()期间，静态props已经代理在组件的原型上。我们只需要代理在实例化时定义的props。
         if (!(key in vm)) {
           proxy(vm, "_props", key);
         }
@@ -4949,6 +4981,7 @@
   
         if (!isSSR) {
           // create internal watcher for the computed property.
+          // 为计算属性创建内部监视程序。
           watchers[key] = new Watcher(
             vm,
             getter || noop,
@@ -5009,6 +5042,7 @@
           if (watcher.dirty) {
             watcher.evaluate();
           }
+        //   收集读取计算属性的watcher
           if (Dep.target) {
             watcher.depend();
           }
