@@ -6,24 +6,45 @@
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<title>😋underscore</title>
 		<script src="./underscore.js"></script>
-        <script src="./data.js"></script>
-        <style>
-            html,body {
-                height: 100%;
-            }
-        </style>
+		<script src="./data.js"></script>
+		<style>
+			html,
+			body {
+				height: 100%;
+			}
+		</style>
 	</head>
-	<body contenteditable="true">
-		<div >
-            sss 
-        </div>
-        <script>
-            (_.restArguments(function(a,b){
-                console.log(arguments);
-            },12))('a', 'b')
-            console.log(2);
-        </script>
+	<body>
+		<div id="root">sss</div>
+		<script>
+			var html = _.template('hello <%= name %> , $xx <div>jjjj <%-age%></div>')({
+				name: 'hah',
+				age: '<h1>——</h1>',
+			});
+
+			console.log(_.template('hello <%= name %> , $xx <div>jjjj <%-age%></div>').source,'----');
+			document.getElementById('root').innerHTML = html
+			console.log(html);
+		</script>
 		<script src="./my-underscore.js"></script>
 		<script src="./index.js"></script>
+
+		<script>
+			// var __t,
+			// 	__p = '',
+			// 	__j = Array.prototype.join,
+			// 	print = function () {
+			// 		__p += __j.call(arguments, '');
+			// 	};
+			// with (obj || {}) {
+			// 	__p +=
+			// 		'hello ' +
+			// 		((__t = name) == null ? '' : __t) +
+			// 		' ' +
+			// 		((__t = age) == null ? '' : __t) +
+			// 		'';
+			// }
+			// return __p;
+		</script>
 	</body>
 </html>

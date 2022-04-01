@@ -132,6 +132,7 @@ function toType( obj ) {
 
 	// Support: Android <=2.3 only (functionish RegExp)
 	return typeof obj === "object" || typeof obj === "function" ?
+		// 去class2type中查找
 		class2type[ toString.call( obj ) ] || "object" :
 		typeof obj;
 }
@@ -146,7 +147,6 @@ var
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
-        console.log({selector, context});
         // if(this instanceof jQuery) {
         //     this.init(selector, context)
         // } else {
@@ -171,7 +171,8 @@ jQuery.fn = jQuery.prototype = {
 	// The default length of a jQuery object is 0
 	length: 0,
 
-	toArray: function() {
+	toArray: function () {
+		//  使用Array.prototy.slice 将类数组对象转为数组
 		return slice.call( this );
 	},
 
@@ -180,6 +181,7 @@ jQuery.fn = jQuery.prototype = {
 	get: function( num ) {
 
 		// Return all the elements in a clean array
+		// 返回所有元素组成的数组
 		if ( num == null ) {
 			return slice.call( this );
 		}
@@ -214,7 +216,6 @@ jQuery.fn = jQuery.prototype = {
 	},
 
 	slice: function() {
-        debugger
 		return this.pushStack( slice.apply( this, arguments ) );
 	},
 
@@ -226,7 +227,7 @@ jQuery.fn = jQuery.prototype = {
 		return this.eq( -1 );
 	},
 
-	eq: function( i ) {
+	eq: function( i ) { 
 		var len = this.length,
 			j = +i + ( i < 0 ? len : 0 );
 		return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] );
@@ -284,7 +285,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 				if ( name === "__proto__" || target === copy ) {
 					continue;
 				}
-
+				
 				// Recurse if we're merging plain objects or arrays
 				if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
 					( copyIsArray = Array.isArray( copy ) ) ) ) {
@@ -344,7 +345,7 @@ jQuery.extend( {
 		if ( !proto ) {
 			return true;
 		}
-
+     
 		// Objects with prototype are plain iff they were constructed by a global Object function
 		Ctor = hasOwn.call( proto, "constructor" ) && proto.constructor;
 		return typeof Ctor === "function" && fnToString.call( Ctor ) === ObjectFunctionString;
@@ -403,6 +404,7 @@ jQuery.extend( {
 					[ arr ] : arr
 				);
 			} else {
+				//  将一个元素转换成一个数组。
 				push.call( ret, arr );
 			}
 		}
@@ -416,6 +418,7 @@ jQuery.extend( {
 
 	// Support: Android <=4.0 only, PhantomJS 1 only
 	// push.apply(_, arraylike) throws on ancient WebKit
+	// 合并两个数组内容到第一个数组。
 	merge: function( first, second ) {
 		var len = +second.length,
 			j = 0,
@@ -439,12 +442,19 @@ jQuery.extend( {
 
 		// Go through the array, only saving the items
 		// that pass the validator function
+		
 		for ( ; i < length; i++ ) {
 			callbackInverse = !callback( elems[ i ], i );
 			if ( callbackInverse !== callbackExpect ) {
 				matches.push( elems[ i ] );
 			}
 		}
+		//! 上面的写法很绕
+		// for (; i < length; i++) {
+		// 	if (callback(elems[i], i) === !invert) {
+		// 		matches.push(elems[i])
+		// 	}
+		// }
 
 		return matches;
 	},
@@ -489,6 +499,7 @@ jQuery.extend( {
 	support: support
 } );
 
+// 使jquery对象可用for of迭代
 if ( typeof Symbol === "function" ) {
 	jQuery.fn[ Symbol.iterator ] = arr[ Symbol.iterator ];
 }
@@ -497,7 +508,7 @@ if ( typeof Symbol === "function" ) {
 jQuery.each( "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " ),
 function( i, name ) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
-} );
+	});
 
 function isArrayLike( obj ) {
 

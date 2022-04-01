@@ -1,0 +1,25 @@
+{
+  "name": "source-code-study",
+  "version": "1.0.0",
+  "description": "vue source code study",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amazingdudu/source-code-study.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amazingdudu/source-code-study/issues"
+  },
+  "homepage": "https://github.com/amazingdudu/source-code-study#readme",
+  "dependencies": {
+    "@types/jquery": "^3.5.9",
+    "jquery": "^3.4.1",
+    "redux": "^4.1.2"
+  }
+}
