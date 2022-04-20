@@ -28,15 +28,20 @@ export function getDependsOnOwnProps(mapToProps) {
 
 // Used by whenMapStateToPropsIsFunction and whenMapDispatchToPropsIsFunction,
 // this function wraps mapToProps in a proxy function which does several things:
+// 当mapstatetopropsisfunction和whenMapDispatchToPropsIsFunction使用时，
+// 这个函数将mapToProps包装在一个代理函数中，它做了以下几件事:
 //
 //  * Detects whether the mapToProps function being called depends on props, which
 //    is used by selectorFactory to decide if it should reinvoke on props changes.
+// 检测被调用的mapToProps函数是否依赖于props，selectorFactory使用props来决定是否应在props更改时重新调用。
 //
 //  * On first call, handles mapToProps if returns another function, and treats that
 //    new function as the true mapToProps for subsequent calls.
+// 在第一次调用时，如果返回另一个函数，则处理mapToProps，并在后续调用中将该新函数视为真正的mapToProps。
 //
 //  * On first call, verifies the first result is a plain object, in order to warn
 //    the developer that their mapToProps function is not returning a valid result.
+// 在第一次调用时，验证第一个结果是普通对象，以便警告开发人员他们的mapToProps函数没有返回有效结果。
 //
 export function wrapMapToPropsFunc(mapToProps, methodName) {
   return function initProxySelector(dispatch, { displayName }) {
