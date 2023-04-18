@@ -5329,7 +5329,7 @@
         args.unshift(this); 
         // 安装插件
         if (typeof plugin.install === 'function') {
-          plugin.install.apply(plugin, args);
+          plugin.install.call(plugin, args);
         } else if (typeof plugin === 'function') {
           plugin.apply(null, args);
         }
